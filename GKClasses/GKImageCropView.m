@@ -114,10 +114,19 @@ static CGRect GKScaleRect(CGRect rect, CGFloat scale)
     else {
 		
 		//scaled width/height in regards of real width to crop width
-		CGFloat scaleWidth = self.imageToCrop.size.width / self.cropSize.width;		
+		CGFloat scaleWidth = self.imageToCrop.size.width / self.cropSize.width;
+		CGFloat scaleHeight = self.imageToCrop.size.height / self.cropSize.height;
 		CGFloat scale = 0.0f;
 		
-        scale = scaleWidth;
+		if (self.cropSize.width > self.cropSize.height) {
+			scale = (self.imageToCrop.size.width < self.imageToCrop.size.height ?
+					 MAX(scaleWidth, scaleHeight) :
+					 MIN(scaleWidth, scaleHeight));
+		}else{
+			scale = (self.imageToCrop.size.width < self.imageToCrop.size.height ?
+					 MIN(scaleWidth, scaleHeight) :
+					 MAX(scaleWidth, scaleHeight));
+		}
 		
 		//extract visible rect from scrollview and scale it
 		CGRect visibleRect = [scrollView convertRect:scrollView.bounds toView:imageView];
@@ -226,9 +235,22 @@ static CGRect GKScaleRect(CGRect rect, CGFloat scale)
     CGFloat height = self.imageToCrop.size.height;
     CGFloat width = self.imageToCrop.size.width;
     
-    CGFloat faktor = width / size.width;
-    CGFloat faktoredHeight = size.width;
-    CGFloat faktoredWidth = height / faktor;
+    CGFloat faktor = 0.f;
+    CGFloat faktoredHeight = 0.f;
+    CGFloat faktoredWidth = 0.f;
+    
+    if(width > height){
+        
+        faktor = width / size.width;
+        faktoredWidth = size.width;
+        faktoredHeight =  height / faktor;
+        
+    } else {
+        
+        faktor = height / size.height;
+        faktoredWidth = width / faktor;
+        faktoredHeight =  size.height;
+    }
     
     self.cropOverlayView.frame = self.bounds;
     self.scrollView.frame = CGRectMake(xOffset, yOffset, size.width, size.height);
